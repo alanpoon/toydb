@@ -1,9 +1,7 @@
-mod hybrid;
 mod memory;
 #[cfg(test)]
 mod test;
 
-pub use hybrid::Hybrid;
 pub use memory::Memory;
 #[cfg(test)]
 pub use test::Test;

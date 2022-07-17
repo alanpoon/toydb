@@ -61,11 +61,6 @@ impl From<regex::Error> for Error {
     }
 }
 
-impl From<rustyline::error::ReadlineError> for Error {
-    fn from(err: rustyline::error::ReadlineError) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
 
 impl From<std::array::TryFromSliceError> for Error {
     fn from(err: std::array::TryFromSliceError) -> Self {
@@ -79,11 +74,6 @@ impl From<std::io::Error> for Error {
     }
 }
 
-impl From<std::net::AddrParseError> for Error {
-    fn from(err: std::net::AddrParseError) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
 
 impl From<std::num::ParseFloatError> for Error {
     fn from(err: std::num::ParseFloatError) -> Self {
@@ -105,38 +95,6 @@ impl From<std::string::FromUtf8Error> for Error {
 
 impl<T> From<std::sync::PoisonError<T>> for Error {
     fn from(err: std::sync::PoisonError<T>) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
-
-impl From<tokio::task::JoinError> for Error {
-    fn from(err: tokio::task::JoinError) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
-
-// see https://github.com/tokio-rs/tokio/pull/3263: remove try_recv() from mpsc types
-//
-// impl From<tokio::sync::mpsc::error::TryRecvError> for Error {
-//     fn from(err: tokio::sync::mpsc::error::TryRecvError) -> Self {
-//         Error::Internal(err.to_string())
-//     }
-// }
-
-impl<T> From<tokio::sync::mpsc::error::SendError<T>> for Error {
-    fn from(err: tokio::sync::mpsc::error::SendError<T>) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
-
-impl<T> From<tokio::sync::mpsc::error::TrySendError<T>> for Error {
-    fn from(err: tokio::sync::mpsc::error::TrySendError<T>) -> Self {
-        Error::Internal(err.to_string())
-    }
-}
-
-impl From<tokio::sync::oneshot::error::RecvError> for Error {
-    fn from(err: tokio::sync::oneshot::error::RecvError) -> Self {
         Error::Internal(err.to_string())
     }
 }

@@ -4,9 +4,8 @@ use super::{Engine as _, IndexScan, Mode, Scan, Transaction as _};
 use crate::error::{Error, Result};
 use crate::raft;
 use crate::storage::kv;
-
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use serde_derive::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 /// A Raft state machine mutation
@@ -65,13 +64,12 @@ pub struct Status {
 /// An SQL engine that wraps a Raft cluster.
 #[derive(Clone)]
 pub struct Raft {
-    client: raft::Client,
 }
 
 impl Raft {
     /// Creates a new Raft SQL engine.
-    pub fn new(client: raft::Client) -> Self {
-        Self { client }
+    pub fn new() -> Self {
+        Self { }
     }
 
     /// Creates an underlying state machine for a Raft engine.
@@ -79,13 +77,29 @@ impl Raft {
         State::new(kv)
     }
 
-    /// Returns Raft SQL engine status.
+    // Returns Raft SQL engine status.
     pub fn status(&self) -> Result<Status> {
-        Ok(Status {
-            raft: futures::executor::block_on(self.client.status())?,
-            mvcc: Raft::deserialize(&futures::executor::block_on(
-                self.client.query(Raft::serialize(&Query::Status)?),
-            )?)?,
+        // Ok(Status {
+        //     raft: futures::executor::block_on(self.client.status())?,
+        //     mvcc: Raft::deserialize(&futures::executor::block_on(
+        //         self.client.query(Raft::serialize(&Query::Status)?),
+        //     )?)?,
+        // })
+        Ok(Status{
+          raft: raft::Status{server: String::from(""),
+          leader: String::from(""),
+          term: 0,
+          node_last_index: HashMap::new(),
+          commit_index:0,
+          apply_index:0,
+          storage: String::from(""),
+          storage_size: 0
+        },
+        mvcc: kv::mvcc::Status{
+          txns: 0,
+          txns_active: 0 ,
+          storage: String::from(""),
+        }
         })
     }
 
@@ -104,19 +118,18 @@ impl super::Engine for Raft {
     type Transaction = Transaction;
 
     fn begin(&self, mode: Mode) -> Result<Self::Transaction> {
-        Transaction::begin(self.client.clone(), mode)
+        Transaction::begin( mode)
     }
 
     fn resume(&self, id: u64) -> Result<Self::Transaction> {
-        Transaction::resume(self.client.clone(), id)
+        Transaction::resume(id)
     }
 }
 
 /// A Raft-based SQL transaction
 #[derive(Clone)]
 pub struct Transaction {
-    /// The underlying Raft cluster
-    client: raft::Client,
+   
     /// The transaction ID
     id: u64,
     /// The transaction mode
@@ -125,29 +138,34 @@ pub struct Transaction {
 
 impl Transaction {
     /// Starts a transaction in the given mode
-    fn begin(client: raft::Client, mode: Mode) -> Result<Self> {
-        let id = Raft::deserialize(&futures::executor::block_on(
-            client.mutate(Raft::serialize(&Mutation::Begin(mode))?),
-        )?)?;
-        Ok(Self { client, id, mode })
+    fn begin(mode: Mode) -> Result<Self> {
+        // let id = Raft::deserialize(&futures::executor::block_on(
+        //     client.mutate(Raft::serialize(&Mutation::Begin(mode))?),
+        // )?)?;
+        let id =0;
+        Ok(Self { id, mode })
     }
 
     /// Resumes an active transaction
-    fn resume(client: raft::Client, id: u64) -> Result<Self> {
-        let (id, mode) = Raft::deserialize(&futures::executor::block_on(
-            client.query(Raft::serialize(&Query::Resume(id))?),
-        )?)?;
-        Ok(Self { client, id, mode })
+    fn resume(id: u64) -> Result<Self> {
+        // let (id, mode) = Raft::deserialize(&futures::executor::block_on(
+        //     client.query(Raft::serialize(&Query::Resume(id))?),
+        // )?)?;
+        let id =0;
+        let mode = Mode::ReadWrite;
+        Ok(Self { id, mode })
     }
 
     /// Executes a mutation
     fn mutate(&self, mutation: Mutation) -> Result<Vec<u8>> {
-        futures::executor::block_on(self.client.mutate(Raft::serialize(&mutation)?))
+        //futures::executor::block_on(self.client.mutate(Raft::serialize(&mutation)?))
+        Ok(vec![])
     }
 
     /// Executes a query
     fn query(&self, query: Query) -> Result<Vec<u8>> {
-        futures::executor::block_on(self.client.query(Raft::serialize(&query)?))
+        //futures::executor::block_on(self.client.query(Raft::serialize(&query)?))
+        Ok(vec![])
     }
 }
 
