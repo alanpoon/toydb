@@ -1,4 +1,0 @@
-Query: CREATE TABLE name ()
-Error: Parse("Expected identifier, got )")
-
-Storage:

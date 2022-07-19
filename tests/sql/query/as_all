@@ -1,5 +1,0 @@
-Query: SELECT * AS all FROM movies
-
-Error: Unexpected token AS
-
-AST: Parse("Unexpected token AS")

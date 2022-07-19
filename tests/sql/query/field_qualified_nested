@@ -1,5 +1,0 @@
-Query: SELECT movies.id.value FROM movies
-
-Error: Unexpected token .
-
-AST: Parse("Unexpected token .")

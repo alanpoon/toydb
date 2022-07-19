@@ -1,4 +1,0 @@
-Query: CREATE TABLE name (id INTEGER PRIMARY KEY NULL)
-Error: Value("Primary key id cannot be nullable")
-
-Storage:
